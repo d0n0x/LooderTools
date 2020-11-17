@@ -2,25 +2,44 @@
 //
 
 #include "pch.h"
+#pragma warning(disable:4996)
 
-int main(int argc,TCHAR *argv[])
+
+int wmain(int argc,TCHAR *argv[])
 {
     if (argc != 2)
     {
         printf(("\nUsage: %s <dir name>\n"), argv[0]);
     }
-    std::cout << "Hello World!\n";
-}
+    WIN32_FIND_DATA ffd;
+    LARGE_INTEGER filesize;
+    TCHAR szDir[MAX_PATH];
+    size_t length_of_arg;
+    HANDLE hFind;
+    DWORD dwError = 0;
+    WIN32_FIND_DATA FindData;
+    std::vector<std::wstring> pathList;
 
 
+        cout << "FindFirstFile/FindNextFile demo.\n" << endl;
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
+        // Find the first file
+        TCHAR dataPath[260];
+        wcscpy(dataPath, argv[1]);
+        hFind = FindFirstFile(dataPath, &FindData);
+        std::wstring ws(FindData.cFileName);
+        wcout << ws << endl;
+        // Look for more
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+        while (FindNextFile(hFind, &FindData))
+        {
+            cout << FindData.cFileName << endl;
+            pathList.push_back(std::wstring(FindData.cFileName));
+        }
+
+        // Close the file handle
+
+        FindClose(hFind);
+        std::copy(pathList.begin(),pathList.end(),std::ostream_iterator<std::wstring, wchar_t>(std::wcout, L"\n"));
+        return 0;
+    }
